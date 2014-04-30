@@ -50,6 +50,7 @@ void *ion_heap_map_kernel(struct ion_heap *heap,
 	for_each_sg(table->sgl, sg, table->nents, i) {
 		int npages_this_entry = PAGE_ALIGN(sg->length) / PAGE_SIZE;
 		struct page *page = sg_page(sg);
+
 		BUG_ON(i >= npages);
 		for (j = 0; j < npages_this_entry; j++)
 			*(tmp++) = page++;
@@ -98,7 +99,7 @@ int ion_heap_map_user(struct ion_heap *heap, struct ion_buffer *buffer,
 		ret = remap_pfn_range(vma, addr, page_to_pfn(page), len,
 				vma->vm_page_prot);
 		if (ret) {
-                        IONMSG("%s remap_pfn_range failed vma:0x%p, addr = %lu, pfn = %lu, len = %lu, ret = %d.\n", 
+                        IONMSG("%s remap_pfn_range failed vma:0x%p, addr = %lu, pfn = %lu, len = %lu, ret = %d.\n",
                                 __func__, vma, addr, page_to_pfn(page), len, ret);
 			return ret;
                 }
@@ -112,6 +113,7 @@ int ion_heap_map_user(struct ion_heap *heap, struct ion_buffer *buffer,
 static int ion_heap_clear_pages(struct page **pages, int num, pgprot_t pgprot)
 {
 	void *addr = vm_map_ram(pages, num, -1, pgprot);
+
 	if (!addr) {
                 IONMSG("%s vm_map_ram failed addr is null.\n", __func__);
 		return -ENOMEM;
