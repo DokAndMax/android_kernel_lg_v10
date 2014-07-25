@@ -152,8 +152,32 @@ static int d_namespace_path(struct path *path, char *buf, int buflen,
 			goto out;
 	}
 
-	if (!connected)
-		error = disconnect(path, buf, name, flags);
+	/* If the path is not connected to the expected root,
+	 * check if it is a sysctl and handle specially else remove any
+	 * leading / that __d_path may have returned.
+	 * Unless
+	 *     specifically directed to connect the path,
+	 * OR
+	 *     if in a chroot and doing chroot relative paths and the path
+	 *     resolves to the namespace root (would be connected outside
+	 *     of chroot) and specifically directed to connect paths to
+	 *     namespace root.
+	 */
+	if (!connected) {
+		if (!(flags & PATH_CONNECT_PATH) &&
+			   !(((flags & CHROOT_NSCONNECT) == CHROOT_NSCONNECT) &&
+			     our_mnt(path->mnt))) {
+			/* disconnected path, don't return pathname starting
+			 * with '/'
+			 */
+			error = -EACCES;
+			if (*res == '/')
+				*name = res + 1;
+		} else if (*res != '/')
+			/* CONNECT_PATH with missing root */
+			error = prepend(name, *name - buf, "/", 1);
+
+	}
 
 out:
 	return error;
