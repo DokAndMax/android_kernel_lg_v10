@@ -169,4 +169,6 @@ source "drivers/ipack/Kconfig"
 source "drivers/reset/Kconfig"
 
 source "drivers/nm32x/Kconfig"
+
+source "drivers/android/Kconfig"
 endmenu
