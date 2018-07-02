@@ -133,6 +133,17 @@ void dbs_check_cpu(struct dbs_data *dbs_data, int cpu)
 #endif
 		// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+		if (dbs_data->cdata->governor == GOV_ONDEMAND
+		    || dbs_data->cdata->governor == GOV_HOTPLUG // <-XXX
+		   ) {
+			freq_avg = __cpufreq_driver_getavg(policy, j);
+
+			if (freq_avg <= 0)
+				freq_avg = policy->cur;
+
+			load *= freq_avg;
+		}
+
 		if (load > max_load)
 			max_load = load;
 
