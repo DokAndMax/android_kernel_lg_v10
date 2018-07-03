@@ -28,7 +28,7 @@
 #include <mach/eint.h>
 
 #ifdef DSI_ENABLE_PWM_FOR_TE
-#include <mach/mt_pwm.h> 
+#include <mach/mt_pwm.h>
 #endif
 #endif
 
@@ -227,7 +227,7 @@ unsigned int custom_pll_clock_remap(int input_mipi_clock)
 #endif
 static void lcm_mdelay(UINT32 ms)
 {
-    udelay(1000 * ms);
+    mdelay(1 * ms);
 }
 void DSI_Enable_Log(bool enable)
 {
@@ -319,7 +319,7 @@ static irqreturn_t _DSI_InterruptHandler(int irq, void *dev_id)
         } while(DSI_REG->DSI_INTSTA.BUSY);
 #endif
         MASKREG32(&DSI_REG->DSI_INTSTA, 0x1, 0x0);
-    waitRDDone = true;		
+    waitRDDone = true;
 		wake_up_interruptible(&_dsi_dcs_read_wait_queue);
 
         if(_dsiContext.pIntCallback)
@@ -416,12 +416,12 @@ static irqreturn_t _DSI_InterruptHandler(int irq, void *dev_id)
 
 #ifdef CONFIG_MIXMODE_FOR_INCELL
         if (dsi_incell_mix_mode_status == DSI_INCELL_GPIO_TIMER_MODE_FROM_MIX)
-        {   
-            OUTREGBIT(DSI_INT_ENABLE_REG,DSI_REG->DSI_INTEN,EXT_TE,0);            
-            DSI_SetMode(CMD_MODE);          
+        {
+            OUTREGBIT(DSI_INT_ENABLE_REG,DSI_REG->DSI_INTEN,EXT_TE,0);
+            DSI_SetMode(CMD_MODE);
             delay_DSI_Start();
         }
-#endif        
+#endif
    }
 
 
@@ -452,7 +452,7 @@ static irqreturn_t _DSI_InterruptHandler(int irq, void *dev_id)
         {
 		    delay_DSI_Start();
         }
-#endif        
+#endif
     }
 
     return IRQ_HANDLED;
@@ -526,7 +526,7 @@ static BOOL _IsEngineBusy(void)
 static void _WaitForEngineNotBusy(void)
 {
     int timeOut;
-    int irq_wait_cnt; 
+    int irq_wait_cnt;
 #if ENABLE_DSI_INTERRUPT
     long int time;
     static const long WAIT_TIMEOUT = 2 * HZ;    // 2 sec
@@ -583,7 +583,7 @@ static void _WaitForEngineNotBusy(void)
         }
     }
 
-#ifdef CONFIG_MIXMODE_FOR_INCELL    
+#ifdef CONFIG_MIXMODE_FOR_INCELL
     if (lcm_params->dsi.mixmode_enable)
     {
         irq_wait_cnt=atomic_dec_return(&dsi_wait_irq_count);
@@ -594,7 +594,7 @@ static void _WaitForEngineNotBusy(void)
                 printk("DSI %s: disable CMD_DONR_INT\n", __func__);
         }
     }
-#endif        
+#endif
 #else
 
 	while(_IsEngineBusy()) {
@@ -723,23 +723,23 @@ static void DSI_TE_eint_func(void)
         mt_eint_unmask(CUST_EINT_DSI_TE_NUM);
         return;
     }
-        
-    hrtimer_try_to_cancel(&dsi_single_frame_mode_timer); 
+
+    hrtimer_try_to_cancel(&dsi_single_frame_mode_timer);
 
     if (cnt_timer_for_dsi > CNT_TIMER_FOR_MIXMODE)
     {
         Start_MixMode();
-        DSI_Start(); 
-        
+        DSI_Start();
+
         OUTREGBIT(DSI_INT_STATUS_REG,DSI_REG->DSI_INTSTA,CMD_DONE,0);
         OUTREGBIT(DSI_INT_STATUS_REG,DSI_REG->DSI_INTSTA,EXT_TE,0);
         OUTREGBIT(DSI_INT_STATUS_REG,DSI_REG->DSI_INTSTA,VM_CMD_DONE,0);
         OUTREGBIT(DSI_INT_ENABLE_REG,DSI_REG->DSI_INTEN,CMD_DONE,0);
-        OUTREGBIT(DSI_INT_ENABLE_REG,DSI_REG->DSI_INTEN,EXT_TE,0);     
+        OUTREGBIT(DSI_INT_ENABLE_REG,DSI_REG->DSI_INTEN,EXT_TE,0);
         mt_eint_unmask(CUST_EINT_DSI_TE_NUM);
         return;
     }
-    
+
     if (is_early_suspended)
     {
         mt_eint_unmask(CUST_EINT_DSI_TE_NUM);
@@ -748,31 +748,31 @@ static void DSI_TE_eint_func(void)
 
 	if(!_IsEngineBusy())
 	{
-        //printk("DSI_TE CB: DSI_Start\n");            
+        //printk("DSI_TE CB: DSI_Start\n");
         DSI_clk_HS_mode(1);
-        DSI_Start();   
+        DSI_Start();
         cnt_timer_for_dsi++;
 	}
     else
 	{
 		//printk("DSI_TE_IsEngineBusy\n");
 	}
-    
+
     mt_eint_unmask(CUST_EINT_DSI_TE_NUM);
     return;
 }
 
 static inline int DSI_vidoe_TE_eint_setup(void)
-{	
+{
 	/*configure to GPIO function, external interrupt*/
     printk("DSI : DSI_vidoe_TE_eint_settup\n");
-	
+
     mt_set_gpio_mode(GPIO_DSI_TE_EINT_PIN, GPIO_DSI_TE_EINT_PIN_M_EINT);
     mt_set_gpio_dir(GPIO_DSI_TE_EINT_PIN, GPIO_DIR_IN);
     mt_set_gpio_pull_enable(GPIO_DSI_TE_EINT_PIN, GPIO_PULL_DISABLE); //To disable GPIO PULL.
 
     mt_eint_registration(CUST_EINT_DSI_TE_NUM, CUST_EINTF_TRIGGER_FALLING, DSI_TE_eint_func, 0);
-    mt_eint_unmask(CUST_EINT_DSI_TE_NUM);  
+    mt_eint_unmask(CUST_EINT_DSI_TE_NUM);
     return 0;
 }
 
@@ -790,17 +790,17 @@ static struct pwm_spec_config pwm_setting = {
 		.PWM_MODE_OLD_REGS.IDLE_VALUE = IDLE_FALSE,
 		.PWM_MODE_OLD_REGS.GUARD_VALUE = 0, /* in old mode, this value is invalid */
 		.PWM_MODE_OLD_REGS.GDURATION = 0,
-		.PWM_MODE_OLD_REGS.WAVE_NUM = 0,                /* 0 == none stop until the PWM is disable */    
+		.PWM_MODE_OLD_REGS.WAVE_NUM = 0,                /* 0 == none stop until the PWM is disable */
            /* 135 : 60.24HZ, margin btw touch_en & pwm_falling_edge=740uS */
-		.clk_div = CLK_DIV4,            
+		.clk_div = CLK_DIV4,
 		.PWM_MODE_OLD_REGS.DATA_WIDTH = 138,//58.2fps //135 //60.2fps
-		.PWM_MODE_OLD_REGS.THRESH =138/2	
+		.PWM_MODE_OLD_REGS.THRESH =138/2
 };
 
 static void set_enable_te_framesync(void)
 {
 	printk("<0>""=============mt_pmic_pwm0_test===============\n");
-	mt_set_gpio_mode(GPIO_INCELL_DISP_TE_PWM,GPIO_INCELL_DISP_TE_M_PWM); 
+	mt_set_gpio_mode(GPIO_INCELL_DISP_TE_PWM,GPIO_INCELL_DISP_TE_M_PWM);
 
 	printk(KERN_INFO "PWM: clk_div = %x, clk_src = %x, pwm_no = %x\n", pwm_setting.clk_div, pwm_setting.clk_src, pwm_setting.pwm_no);
 	pwm_set_spec_config(&pwm_setting);
@@ -814,7 +814,7 @@ void DSI_Enable_PWM_forTE(void)
 
 void DSI_Disable_PWM_forTE(void)
 {
-	mt_pwm_disable(pwm_setting.pwm_no, pwm_setting.pmic_pad);	
+	mt_pwm_disable(pwm_setting.pwm_no, pwm_setting.pmic_pad);
 }
 
 void DSI_set_fps_for_PWM(unsigned int fps)
@@ -914,7 +914,7 @@ init_waitqueue_head(&_vsync_wait_queue);
     spin_lock_init(&dsi_glitch_detect_lock);
 
 #ifdef CONFIG_MIXMODE_FOR_INCELL
-#ifdef DSI_ENABLE_PWM_FOR_TE    
+#ifdef DSI_ENABLE_PWM_FOR_TE
     if (lcm_params->dsi.mixmode_enable)
     {
         DSI_set_fps_for_PWM(lcm_params->dsi.pwm_fps);
@@ -929,38 +929,38 @@ init_waitqueue_head(&_vsync_wait_queue);
 
 #ifdef CONFIG_MIXMODE_FOR_INCELL
 static enum hrtimer_restart _DSI_Single_Frame_ModeTimer_handler(struct hrtimer *timer)
-{  
+{
     if (dsi_incell_mix_mode_status == DSI_INCELL_GPIO_TIMER_MODE_FROM_MIX)
     {
         //printk("hrtimerCB: Change Timer mode\n");
-        //DSI_vidoe_TE_eint_setup();        
-        mt_set_gpio_mode(GPIO_DSI_TE_EINT_PIN, GPIO_DSI_TE_EINT_PIN_M_EINT);    
-        
+        //DSI_vidoe_TE_eint_setup();
+        mt_set_gpio_mode(GPIO_DSI_TE_EINT_PIN, GPIO_DSI_TE_EINT_PIN_M_EINT);
+
         DSI_SetMode(CMD_MODE);
         DSI_Reset();
-            
-        DSI_PHY_clk_switch(false);      
+
+        DSI_PHY_clk_switch(false);
         DSI_PHY_clk_setting(lcm_params);
-        
+
         cnt_timer_for_dsi = 0;
         OUTREGBIT(DSI_MODE_CTRL_REG,DSI_REG->DSI_MODE_CTRL,MIX_MODE,0);
-        OUTREGBIT(DSI_MODE_CTRL_REG,DSI_REG->DSI_MODE_CTRL,FRM_MODE,1);  
-        DSI_clk_HS_mode(1);    
-        DSI_SetMode(lcm_params->dsi.mode);  
-        
-        DSI_Start();  
-        dsi_incell_mix_mode_status = DSI_INCELL_GPIO_TIMER_MODE;    
+        OUTREGBIT(DSI_MODE_CTRL_REG,DSI_REG->DSI_MODE_CTRL,FRM_MODE,1);
+        DSI_clk_HS_mode(1);
+        DSI_SetMode(lcm_params->dsi.mode);
+
+        DSI_Start();
+        dsi_incell_mix_mode_status = DSI_INCELL_GPIO_TIMER_MODE;
 	    return HRTIMER_NORESTART;
     }
-    
+
     if (dsi_incell_mix_mode_status != DSI_INCELL_GPIO_TIMER_MODE)
-        return HRTIMER_NORESTART;    
+        return HRTIMER_NORESTART;
 
     if(!_IsEngineBusy())
     {
-        //printk("hrtimerCB: DSI_Start\n");        
+        //printk("hrtimerCB: DSI_Start\n");
         DSI_clk_HS_mode(1);
-        DSI_Start();                
+        DSI_Start();
     }else
     {
         printk("DSI _IsEngineBusy\n");
@@ -977,17 +977,17 @@ static enum hrtimer_restart _DSI_Send_Frame_without_TE_handler(struct hrtimer *t
     	{
             printk("Send_Frame hrtimerCB: cnd (%d)\n", cnt_for_suspend_mode);
     		DSI_clk_HS_mode(1);
-            DSI_Start();                
+            DSI_Start();
     	}else{
     		printk("_DSI_Send_Frame_without_TE_handler _IsEngineBusy\n");
     	}
     }
     else
     {
-        DSI_SetMode(CMD_MODE); 
+        DSI_SetMode(CMD_MODE);
         dsi_single_frame_mode_timer.function = _DSI_Single_Frame_ModeTimer_handler;
-        dsi_incell_mix_mode_status = DSI_INCELL_SUSPEND_MODE;  
-    }    
+        dsi_incell_mix_mode_status = DSI_INCELL_SUSPEND_MODE;
+    }
     cnt_for_suspend_mode--;
 }
 
@@ -995,33 +995,33 @@ static enum hrtimer_restart _DSI_Send_Frame_without_TE_handler(struct hrtimer *t
 static void Start_MixMode(void)
 {
     DSI_T0_INS t0;
-    
+
     t0.CONFG = 0x20;
     t0.Data0 = 0;
     t0.Data_ID = 0;
     t0.Data1 = 0;
-    
+
     printk("Start Mix Mode");
-    
+
     cnt_timer_for_dsi = 0;
-        
+
     DSI_SetMode(CMD_MODE);
     mt_set_gpio_mode(GPIO_DSI_TE_EINT_PIN, GPIO_MODE_01);
-    
+
     OUTREGBIT(DSI_TXRX_CTRL_REG,DSI_REG->DSI_TXRX_CTRL,EXT_TE_EN,1);
     OUTREGBIT(DSI_TXRX_CTRL_REG,DSI_REG->DSI_TXRX_CTRL,EXT_TE_EDGE,1);
-    
+
     DSI_SetMode(lcm_params->dsi.mode);
-    
+
     OUTREGBIT(DSI_MODE_CTRL_REG,DSI_REG->DSI_MODE_CTRL,FRM_MODE,0);
     OUTREGBIT(DSI_MODE_CTRL_REG,DSI_REG->DSI_MODE_CTRL,MIX_MODE,1);
-    
+
     OUTREG32(&DSI_CMDQ_REG->data[0], AS_UINT32(&t0));
     OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 1);
-    
-    DSI_PHY_clk_switch(false);      
+
+    DSI_PHY_clk_switch(false);
     DSI_PHY_clk_setting(lcm_params);
-    
+
     dsi_incell_mix_mode_status = DSI_INCELL_MIX_MODE;
 }
 
@@ -1043,7 +1043,7 @@ static int _MixModeKThread(void *data)
     struct sched_param param = { .sched_priority = RTPM_PRIO_SCRN_UPDATE };
     sched_setscheduler(current, SCHED_RR, &param);
     int MixModeThreadCnt = 0;
-        
+
     while(1)
     {
         msleep(10000);
@@ -1061,15 +1061,15 @@ void DSI_change_mode(DSI_STATUS_FOR_MIX_MODE status)
     {
         case DSI_INCELL_GPIO_TIMER_MODE:
             if (dsi_incell_mix_mode_status == DSI_INCELL_MIX_MODE)
-            {  
+            {
                 OUTREGBIT(DSI_INT_ENABLE_REG,DSI_REG->DSI_INTEN,EXT_TE,1);
                 dsi_incell_mix_mode_status = DSI_INCELL_GPIO_TIMER_MODE_FROM_MIX;
             }
             else if (dsi_incell_mix_mode_status == DSI_INCELL_SUSPEND_MODE)
             {
-                mt_set_gpio_mode(GPIO_DSI_TE_EINT_PIN, GPIO_DSI_TE_EINT_PIN_M_EINT);    
+                mt_set_gpio_mode(GPIO_DSI_TE_EINT_PIN, GPIO_DSI_TE_EINT_PIN_M_EINT);
                 OUTREGBIT(DSI_MODE_CTRL_REG,DSI_REG->DSI_MODE_CTRL,MIX_MODE,0);
-                OUTREGBIT(DSI_MODE_CTRL_REG,DSI_REG->DSI_MODE_CTRL,FRM_MODE,1);  
+                OUTREGBIT(DSI_MODE_CTRL_REG,DSI_REG->DSI_MODE_CTRL,FRM_MODE,1);
                 dsi_single_frame_mode_timer.function = _DSI_Single_Frame_ModeTimer_handler;
                 dsi_incell_mix_mode_status = DSI_INCELL_GPIO_TIMER_MODE;
             }
@@ -1081,49 +1081,49 @@ void DSI_change_mode(DSI_STATUS_FOR_MIX_MODE status)
             {
                 printk("DSI_change_mode fail \n");
             }
-            
+
             break;
-            
+
         case DSI_INCELL_MIX_MODE:
             if (dsi_incell_mix_mode_status == DSI_INCELL_GPIO_TIMER_MODE)
-            {                
+            {
                 cnt_timer_for_dsi = CNT_TIMER_FOR_MIXMODE + 1;
             }
-#ifdef DSI_ENABLE_PWM_FOR_TE            
+#ifdef DSI_ENABLE_PWM_FOR_TE
             else if (dsi_incell_mix_mode_status == DSI_INCELL_SUSPEND_MODE)
             {
                 DSI_MixMode_Start();
             }
-#endif            
+#endif
             else
             {
                 printk("Chaning mode fail \n");
             }
             break;
-            
+
         case DSI_INCELL_SEND_FRAME:
-            {                
+            {
         		DSI_Reset();
-                    
-                DSI_PHY_clk_switch(false);      
+
+                DSI_PHY_clk_switch(false);
                 DSI_PHY_clk_setting(lcm_params);
-                
+
                 OUTREGBIT(DSI_MODE_CTRL_REG,DSI_REG->DSI_MODE_CTRL,MIX_MODE,0);
-                OUTREGBIT(DSI_MODE_CTRL_REG,DSI_REG->DSI_MODE_CTRL,FRM_MODE,1);  
-        		DSI_clk_HS_mode(1);    
-                DSI_SetMode(lcm_params->dsi.mode); 
+                OUTREGBIT(DSI_MODE_CTRL_REG,DSI_REG->DSI_MODE_CTRL,FRM_MODE,1);
+        		DSI_clk_HS_mode(1);
+                DSI_SetMode(lcm_params->dsi.mode);
                 DSI_Start();
-                
+
                 dsi_single_frame_mode_timer.function = _DSI_Send_Frame_without_TE_handler;
                 cnt_for_suspend_mode = SKIP_FRAME_CNT_FOR_SUSPEND_MODE;
-                
+
                 dsi_incell_mix_mode_status = DSI_INCELL_SEND_FRAME;
-                
+
                 while(dsi_incell_mix_mode_status != DSI_INCELL_SUSPEND_MODE)
                     msleep(1);
             }
             break;
-            
+
         default:
             printk("DSI_change_mode fail \n");
             dsi_incell_mix_mode_status = status;
@@ -1145,8 +1145,8 @@ void DSI_EnableCMDDone(void)
 
 void DSI_DisableCMDDone(void)
 {
-    int irq_wait_cnt; 
-    
+    int irq_wait_cnt;
+
 	irq_wait_cnt=atomic_dec_return(&dsi_wait_irq_count);
     if(irq_wait_cnt==0){
         OUTREGBIT(DSI_INT_ENABLE_REG,DSI_REG->DSI_INTEN,CMD_DONE,0);
@@ -1157,38 +1157,38 @@ void DSI_MixMode_Start(void)
 {
 #ifdef DSI_ENABLE_PWM_FOR_TE // When using PWM signal from DDIC
     DSI_T0_INS t0;
-    
+
     t0.CONFG = 0x20;
     t0.Data0 = 0;
     t0.Data_ID = 0;
     t0.Data1 = 0;
-    
+
     if (dsi_incell_mix_mode_status == DSI_INCELL_IDLE_MODE)
     {
         dsi_single_frame_mode_timer_period = ktime_set(0 , VSYNC_MS_TO_NS(WAIT_TOUCHENABLE_TIME));
         hrtimer_init(&dsi_single_frame_mode_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
         dsi_single_frame_mode_timer.function = _DSI_Send_Frame_without_TE_handler;
     }
-    
+
     mt_set_gpio_mode(GPIO_DSI_TE_EINT_PIN, GPIO_MODE_01);
-    
+
     OUTREGBIT(DSI_TXRX_CTRL_REG,DSI_REG->DSI_TXRX_CTRL,EXT_TE_EN,1);
     OUTREGBIT(DSI_TXRX_CTRL_REG,DSI_REG->DSI_TXRX_CTRL,EXT_TE_EDGE,1);
-    
+
     DSI_SetMode(lcm_params->dsi.mode);
-    
+
     OUTREGBIT(DSI_MODE_CTRL_REG,DSI_REG->DSI_MODE_CTRL,FRM_MODE,0);
     OUTREGBIT(DSI_MODE_CTRL_REG,DSI_REG->DSI_MODE_CTRL,MIX_MODE,1);
-    
+
     OUTREG32(&DSI_CMDQ_REG->data[0], AS_UINT32(&t0));
     OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 1);
-    
-    DSI_PHY_clk_switch(false);    
-    lcm_params->dsi.PLL_CLOCK = lcm_params->dsi.mixmode_mipi_clock;  
+
+    DSI_PHY_clk_switch(false);
+    lcm_params->dsi.PLL_CLOCK = lcm_params->dsi.mixmode_mipi_clock;
     DSI_PHY_clk_setting(lcm_params);
-    
+
     dsi_incell_mix_mode_status = DSI_INCELL_MIX_MODE;
-#else 
+#else
     // When using Touch Enable signal from DDIC
     printk("DSI FrameMode Start PWM fps (%d) clock (%d)\n", lcm_params->dsi.pwm_fps, lcm_params->dsi.mixmode_mipi_clock);
 
@@ -1198,23 +1198,23 @@ void DSI_MixMode_Start(void)
         hrtimer_init(&dsi_single_frame_mode_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
         dsi_single_frame_mode_timer.function = _DSI_Single_Frame_ModeTimer_handler;
 
-        DSI_SetMode(lcm_params->dsi.mode);  
+        DSI_SetMode(lcm_params->dsi.mode);
 
         DSI_PHY_clk_switch(false);
         lcm_params->dsi.PLL_CLOCK = lcm_params->dsi.mixmode_mipi_clock;
         DSI_PHY_clk_setting(lcm_params);
-        
-#ifdef TEST_FOR_CHANGE_MODE        
+
+#ifdef TEST_FOR_CHANGE_MODE
         config_mixmode_task = kthread_create(_MixModeKThread, NULL, "mix_mode_config_kthread");
         wake_up_process(config_mixmode_task);
 #endif
     }
-    
+
     OUTREGBIT(DSI_MODE_CTRL_REG,DSI_REG->DSI_MODE_CTRL,MIX_MODE,0);
     OUTREGBIT(DSI_MODE_CTRL_REG,DSI_REG->DSI_MODE_CTRL,FRM_MODE,1);
-    
+
     dsi_incell_mix_mode_status = DSI_INCELL_GPIO_TIMER_MODE;
-    
+
 #endif
 }
 #endif
@@ -3316,7 +3316,7 @@ void DSI_set_cmdq_V3(LCM_setting_table_V3 *para_tbl, unsigned int size, unsigned
 
 		if (data_id == REGFLAG_ESCAPE_ID && cmd == REGFLAG_DELAY_MS_V3)
 		{
-			udelay(1000*count);
+      mdelay(1*count);
 			DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "DSI_set_cmdq_V3[%d]. Delay %d (ms) \n", index, count);
 
 			continue;
@@ -4026,7 +4026,7 @@ UINT32 DSI_dcs_read_lcm_reg_v2(UINT8 cmd, UINT8 *buffer, UINT8 buffer_size)
 	   OUTREG32(&read_data1, AS_UINT32(&DSI_REG->DSI_RX_DATA1));
 	   OUTREG32(&read_data2, AS_UINT32(&DSI_REG->DSI_RX_DATA2));
 	   OUTREG32(&read_data3, AS_UINT32(&DSI_REG->DSI_RX_DATA3));
-#if ENABLE_DSI_INTERRUPT   
+#if ENABLE_DSI_INTERRUPT
 /*you must read data before send RACK*/
 	   do
 	   {
@@ -4036,7 +4036,7 @@ UINT32 DSI_dcs_read_lcm_reg_v2(UINT8 cmd, UINT8 *buffer, UINT8 buffer_size)
 	   } while(DSI_REG->DSI_INTSTA.BUSY);
 
      waitRDDone = false;
-#endif     
+#endif
     #ifdef DDI_DRV_DEBUG_LOG_ENABLE
 	if(dsi_log_on)
     {
