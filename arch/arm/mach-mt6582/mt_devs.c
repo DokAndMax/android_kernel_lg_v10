@@ -1105,7 +1105,7 @@ static int __init parse_tag_devinfo_data_fixup(const struct tag *tags)
 		return 0;
 }
 
-void mt_fixup(struct tag *tags, char **cmdline, struct meminfo *mi)
+void __init mt_fixup(struct tag *tags, char **cmdline, struct meminfo *mi)
 {
     struct tag *cmdline_tag = NULL;
     struct tag *reserved_mem_bank_tag = NULL;
@@ -2305,7 +2305,7 @@ void __weak eemcs_memory_reserve(void)
     printk(KERN_ERR"calling weak function %s\n", __FUNCTION__);
 }
 
-void mt_reserve(void)
+void __init mt_reserve(void)
 {
 //    aee_dram_console_reserve_memory();
 	mrdump_reserve_memory();

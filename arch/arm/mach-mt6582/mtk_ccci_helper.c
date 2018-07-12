@@ -80,13 +80,13 @@ static int internal_md_power_down(void *data)
 	//printk("[ccci/ctl] (0)call md_power_on...\n");
 
 	md_power_on(0);
-	
+
 	md_topsm_base 		= (unsigned int)ioremap_nocache(MD_TOPSM_BASE, 		0x840);
 	modem2g_topsm_base 	= (unsigned int)ioremap_nocache(MODEM2G_TOPSM_BASE, 0x8C0);
 	tdd_base 			= (unsigned int)ioremap_nocache(TDD_BASE, 			0x010);
 
 	printk("[ccci/ctl] (0)MD2G/HSPA power down...\n");
-	
+
 	/*[MD2G/HSPA] MDMCU Control Power Down Sequence*/
 	mt65xx_reg_sync_writel((*MODEM2G_TOPSM_RM_PWR_CON0(modem2g_topsm_base)) | 0x44, MODEM2G_TOPSM_RM_PWR_CON0(modem2g_topsm_base));
 	mt65xx_reg_sync_writel((*MODEM2G_TOPSM_RM_PWR_CON1(modem2g_topsm_base)) | 0x44, MODEM2G_TOPSM_RM_PWR_CON1(modem2g_topsm_base));
@@ -115,7 +115,7 @@ static int internal_md_power_down(void *data)
 	mt65xx_reg_sync_writel((*MODEM2G_TOPSM_RM_PWR_CON4(modem2g_topsm_base)) & ~(0x1<<2) & ~(0x1<<6), MODEM2G_TOPSM_RM_PWR_CON4(modem2g_topsm_base));
 
 	printk("[ccci/ctl] (0)TDD power down...\n");
-	
+
 	/*[TDD] MDMCU Control Power Down Sequence*/
 	mt65xx_reg_sync_writew(0x1, TDD_HALT_CFG_ADDR(tdd_base));
 	status = *((volatile unsigned short*)TDD_HALT_STATUS_ADDR(tdd_base));
@@ -133,7 +133,7 @@ static int internal_md_power_down(void *data)
 	}
 
 	printk("[ccci/ctl] (0)ABB power down...\n");
-	
+
 	/*[ABB] MDMCU Control Power Down Sequence*/
 	mt65xx_reg_sync_writel((*MD_TOPSM_RM_PWR_CON0(md_topsm_base))  | 0x00000090, MD_TOPSM_RM_PWR_CON0(md_topsm_base));
 	mt65xx_reg_sync_writel((*MD_TOPSM_RM_PLL_MASK0(md_topsm_base)) | 0xFFFF0000, MD_TOPSM_RM_PLL_MASK0(md_topsm_base));
@@ -176,7 +176,7 @@ static int internal_md_power_down(void *data)
 #define FEATURE_GET_MD_GPIO_VAL		//disable for bring up
 #define FEATURE_GET_MD_ADC_NUM    //disable for bring up
 #define FEATURE_GET_MD_ADC_VAL		//disable for bring up
-#define FEATURE_GET_MD_EINT_ATTR		//disable for bring up	
+#define FEATURE_GET_MD_EINT_ATTR		//disable for bring up
 //#define FEATURE_GET_DRAM_TYPE_CLK
 //#define FEATURE_MD_FAST_DORMANCY
 #define FEATURE_GET_MD_BAT_VOL		//disable for bring up
@@ -207,7 +207,7 @@ static dfo_item_t ccci_dfo_setting[] =
 	#if defined(MODEM_2G)
 	{"MTK_MD1_SUPPORT",	modem_2g},
 	#else
-	
+
 	#ifdef CONFIG_MTK_UMTS_TDD128_MODE
 	{"MTK_MD1_SUPPORT",	modem_tg},
 	#else
@@ -217,9 +217,9 @@ static dfo_item_t ccci_dfo_setting[] =
     {"MTK_MD1_SUPPORT",	modem_wg},
 #endif
 	#endif
-	
+
 	#endif
-	
+
 	{"CONFIG_MTK_MD2_SUPPORT",	modem_tg},
 	{"MD1_SMEM_SIZE",	MD1_SMEM_SIZE},
 	{"MD2_SMEM_SIZE",	0},
@@ -330,12 +330,12 @@ static void cal_md_mem_usage(void)
 
 	md_usage_case = 0;
 	modem_num = 0;
-	
+
 	if(get_ccci_dfo_setting("CONFIG_MTK_ENABLE_MD1", &tmp) == 0) {
-		if(tmp > 0) 
+		if(tmp > 0)
 			md1_en = 1;
 	}
-	
+
 	if(get_ccci_dfo_setting("MD1_SIZE", &tmp) == 0) {
 		tmp = round_up(tmp, 0x200000);
 		md_resv_mem_size[MD_SYS1] = tmp;
@@ -349,18 +349,18 @@ static void cal_md_mem_usage(void)
 	if(get_ccci_dfo_setting("MTK_MD1_SUPPORT", &tmp) == 0) {
 		md_support[MD_SYS1] = tmp;
 	}
-	
+
 	// Setting conflict checking
 	if(md1_en && (md_share_mem_size[MD_SYS1]>0) && (md_resv_mem_size[MD_SYS1]>0)) {
 		// Setting is OK
 	} else if (md1_en && ((md_share_mem_size[MD_SYS1]<=0) || (md_resv_mem_size[MD_SYS1]<=0))) {
-		printk("[ccci/ctl] (0)[Error]DFO Setting for md1 wrong: <%d:0x%08X:0x%08X>\n", 
+		printk("[ccci/ctl] (0)[Error]DFO Setting for md1 wrong: <%d:0x%08X:0x%08X>\n",
 				md1_en, md_resv_mem_size[MD_SYS1], md_share_mem_size[MD_SYS1]);
 		md_share_mem_size[MD_SYS1] = MD1_SMEM_SIZE;
 		md_resv_mem_size[MD_SYS1] = MD1_MEM_SIZE;
 	} else {
 		// Has conflict
-		printk("[ccci/ctl] (0)[Error]DFO Setting for md1 conflict: <%d:0x%08X:0x%08X>\n", 
+		printk("[ccci/ctl] (0)[Error]DFO Setting for md1 conflict: <%d:0x%08X:0x%08X>\n",
 				md1_en, md_resv_mem_size[MD_SYS1], md_share_mem_size[MD_SYS1]);
 		md1_en = 0;
 		md_share_mem_size[MD_SYS1]=0;
@@ -381,7 +381,7 @@ static void cal_md_mem_usage(void)
 	}
 
 	//printk("[ccci/ctl] (0)md_num: %d, md1_size: 0x%08X\n", modem_num, modem_size_list[0]);
-	
+
 }
 
 
@@ -404,7 +404,7 @@ EXPORT_SYMBOL(get_modem_size_list);
 
 //Reserve DRAM memory for MD from system
 int parse_ccci_dfo_setting(void *dfo_tbl, int num);
-void ccci_md_mem_reserve(void)
+void __init ccci_md_mem_reserve(void)
 {
 	void* ptr = NULL;
 
@@ -467,7 +467,7 @@ int parse_ccci_dfo_setting(void *dfo_data, int num)
 		ccci_value = ccci_dfo_setting[i].value;
 		printk("[ccci/ctl] (0)DFO:%s:0x%08X\n", ccci_name, ccci_value);
 	}
-	
+
 	cal_md_mem_usage();
 
 	return 0;
@@ -534,11 +534,11 @@ int parse_meta_md_setting(unsigned char args[])
 			}
 			printk("[ccci/ctl] (0)Meta active id:1, md type:%d\n", md_support[MD_SYS1]);
 			break;
-			
+
 		default:
 			break;
 	}
-	return 0;	
+	return 0;
 }
 
 unsigned int get_modem_is_enabled(int md_id)
@@ -619,7 +619,7 @@ unsigned int get_md_mem_start_addr(int md_id)
 {
 	switch(md_id)
 	{
-		case MD_SYS1: 
+		case MD_SYS1:
 			return md_resv_mem_addr[MD_SYS1];
 
 		default:
@@ -632,7 +632,7 @@ unsigned int get_md_share_mem_start_addr(int md_id)
 {
 	switch(md_id)
 	{
-		case MD_SYS1: 
+		case MD_SYS1:
 			return md_resv_smem_addr[MD_SYS1];
 
 		default:
@@ -647,9 +647,9 @@ unsigned int get_smem_base_addr(int md_id)
 {
 	switch(md_id)
 	{
-		case MD_SYS1: 
+		case MD_SYS1:
 			return md_resv_smem_base;
-			
+
 		default:
 			return 0;
 	}
@@ -662,7 +662,7 @@ void get_md_post_fix(int md_id, char buf[], char buf_ex[])
 	// modem_X_YY_K_[Ex].img
 	int		X;
 	char		YY_K[8];
-	int		Ex = 0;	
+	int		Ex = 0;
 
 	unsigned int	feature_val = 0;
 
@@ -680,25 +680,25 @@ void get_md_post_fix(int md_id, char buf[], char buf_ex[])
 	default:
 		break;
 	}
-	
+
 	switch(feature_val)
 	{
 		case modem_2g:
 			snprintf(YY_K, 8, "_2g_n");
 			break;
-			
+
 		case modem_3g:
 			snprintf(YY_K, 8, "_3g_n");
 			break;
-			
+
 		case modem_wg:
 			snprintf(YY_K, 8, "_wg_n");
 			break;
-			
+
 		case modem_tg:
 			snprintf(YY_K, 8, "_tg_n");
-			break;			
-			
+			break;
+
 		default:
 			break;
 	}
@@ -740,19 +740,19 @@ int get_td_eint_info(int md_id, char * eint_name, unsigned int len)
 {
 	#if defined (FEATURE_GET_TD_EINT_NUM)
 	return get_td_eint_num(eint_name, len);
-	
+
 	#else
 	return -1;
 	#endif
 }
 EXPORT_SYMBOL(get_td_eint_info);
-	
-	
+
+
 int get_md_gpio_info(int md_id, char *gpio_name, unsigned int len)
 {
 	#if defined (FEATURE_GET_MD_GPIO_NUM)
 	return mt_get_md_gpio(gpio_name, len);
-	
+
 	#else
 	return -1;
 	#endif
@@ -764,7 +764,7 @@ int get_md_gpio_val(int md_id, unsigned int num)
 {
 	#if defined (FEATURE_GET_MD_GPIO_VAL)
 	return mt_get_gpio_in(num);
-	
+
 	#else
 	return -1;
 	#endif
@@ -776,7 +776,7 @@ int get_md_adc_info(int md_id, char *adc_name, unsigned int len)
 {
 	#if defined (FEATURE_GET_MD_ADC_NUM)
 	return IMM_get_adc_channel_num(adc_name, len);
-	
+
 	#else
 	return -1;
 	#endif
@@ -789,14 +789,14 @@ int get_md_adc_val(int md_id, unsigned int num)
 	int data[4] = {0,0,0,0};
 	int val = 0;
 	int ret = 0;
-	
+
 	#if defined (FEATURE_GET_MD_ADC_VAL)
 	ret = IMM_GetOneChannelValue(num, data, &val);
 	if (ret == 0)
 		return val;
 	else
 		return ret;
-	
+
 	#else
 	return -1;
 	#endif
@@ -815,7 +815,7 @@ int get_eint_attr(char *name, unsigned int name_len, unsigned int type, char * r
 }
 EXPORT_SYMBOL(get_eint_attr);
 
-	
+
 int get_dram_type_clk(int *clk, int *type)
 {
 	#if defined (FEATURE_GET_DRAM_TYPE_CLK)
@@ -830,7 +830,7 @@ EXPORT_SYMBOL(get_dram_type_clk);
 void md_fast_dormancy(int md_id)
 {
 	#if defined (FEATURE_MD_FAST_DORMANCY)
-	#ifdef CONFIG_MTK_FD_SUPPORT	
+	#ifdef CONFIG_MTK_FD_SUPPORT
 	exec_ccci_kern_func_by_md_id(md_id, ID_CCCI_DORMANCY, NULL, 0);
 	#endif
 	#endif
@@ -889,7 +889,7 @@ static struct mtk_ccci_sysobj {
 } ccci_sysobj;
 
 
-static int mtk_ccci_sysfs(void) 
+static int mtk_ccci_sysfs(void)
 {
 	struct mtk_ccci_sysobj *obj = &ccci_sysobj;
 
@@ -905,24 +905,24 @@ static int mtk_ccci_sysfs(void)
 	return 0;
 }
 
-ssize_t mtk_ccci_attr_show(struct kobject *kobj, struct attribute *attr, char *buffer) 
+ssize_t mtk_ccci_attr_show(struct kobject *kobj, struct attribute *attr, char *buffer)
 {
 	struct mtk_ccci_sys_entry *entry = container_of(attr, struct mtk_ccci_sys_entry, attr);
 	return entry->show(kobj, buffer);
 }
 
-ssize_t mtk_ccci_attr_store(struct kobject *kobj, struct attribute *attr, const char *buffer, size_t size) 
+ssize_t mtk_ccci_attr_store(struct kobject *kobj, struct attribute *attr, const char *buffer, size_t size)
 {
 	struct mtk_ccci_sys_entry *entry = container_of(attr, struct mtk_ccci_sys_entry, attr);
 	return entry->store(kobj, buffer, size);
 }
 
 //----------------------------------------------------------//
-// Filter table                                                         
+// Filter table
 //----------------------------------------------------------//
 cmd_op_map_t cmd_map_table[MAX_FILTER_MEMBER] = {{"",0}, {"",0}, {"",0}, {"",0}};
 
-ssize_t mtk_ccci_filter_show(struct kobject *kobj, char *buffer) 
+ssize_t mtk_ccci_filter_show(struct kobject *kobj, char *buffer)
 {
 	int i;
 	int remain = PAGE_SIZE;
@@ -943,7 +943,7 @@ ssize_t mtk_ccci_filter_show(struct kobject *kobj, char *buffer)
 	return (PAGE_SIZE-remain);
 }
 
-ssize_t mtk_ccci_filter_store(struct kobject *kobj, const char *buffer, size_t size) 
+ssize_t mtk_ccci_filter_store(struct kobject *kobj, const char *buffer, size_t size)
 {
 	int i;
 
@@ -964,7 +964,7 @@ int register_filter_func(char cmd[], ccci_filter_cb_func_t store, ccci_filter_cb
 	int i;
 	int empty_slot = -1;
 	int cmd_len;
-	
+
 	for(i=0; i<MAX_FILTER_MEMBER; i++){
 		if( 0 == cmd_map_table[i].cmd_len ){
 			// Find a empty slot
@@ -1003,7 +1003,7 @@ int register_ccci_kern_func_by_md_id(int md_id, unsigned int id, ccci_kern_cb_fu
 {
 	int ret = 0;
 	ccci_kern_func_info *info_ptr;
-	
+
 	if((id >= MAX_KERN_API) || (func == NULL) || (md_id >= MAX_MD_NUM)) {
 		printk("[ccci/ctl] (0)register kern func fail: md_id:%d, func_id:%d!\n", md_id+1, id);
 		return E_PARAM;
@@ -1033,17 +1033,17 @@ int exec_ccci_kern_func_by_md_id(int md_id, unsigned int id, char *buf, unsigned
 {
 	ccci_kern_cb_func_t func;
 	int ret = 0;
-	
+
 	if(md_id >= MAX_MD_NUM) {
 		printk("[ccci/ctl] (0)exec kern func fail: invalid md id(%d)\n", md_id+1);
 		return E_PARAM;
 	}
-	
+
 	if(id >= MAX_KERN_API) {
 		printk("[ccci/ctl] (%d)exec kern func fail: invalid func id(%d)!\n", md_id, id);
 		return E_PARAM;
 	}
-	
+
 	func = ccci_func_table[md_id][id].func;
 	if(func != NULL) {
 		ret = func(md_id, buf, len);
@@ -1076,7 +1076,7 @@ EXPORT_SYMBOL(exec_ccci_kern_func);
 int register_sys_msg_notify_func(int md_id, int (*func)(int, unsigned int, unsigned int))
 {
 	int ret = 0;
-	
+
 	if( md_id >= MAX_MD_NUM ) {
 		printk("[ccci/ctl] (0)register_sys_msg_notify_func fail: invalid md id(%d)\n", md_id+1);
 		return E_PARAM;
@@ -1097,7 +1097,7 @@ int notify_md_by_sys_msg(int md_id, unsigned int msg, unsigned int data)
 {
 	int ret = 0;
 	int (*func)(int, unsigned int, unsigned int);
-	
+
 	if(md_id >= MAX_MD_NUM) {
 		printk("[ccci/ctl] (0)notify_md_by_sys_msg: invalid md id(%d)\n", md_id+1);
 		return E_PARAM;
@@ -1120,7 +1120,7 @@ int register_ccci_sys_call_back(int md_id, unsigned int id, ccci_sys_cb_func_t f
 {
 	int ret = 0;
 	ccci_sys_cb_func_info_t *info_ptr;
-	
+
 	if( md_id >= MAX_MD_NUM ) {
 		printk("[ccci/ctl] (0)register_sys_call_back fail: invalid md id(%d)\n", md_id+1);
 		return E_PARAM;
@@ -1134,7 +1134,7 @@ int register_ccci_sys_call_back(int md_id, unsigned int id, ccci_sys_cb_func_t f
 		printk("[ccci/ctl] (%d)register_sys_call_back fail: invalid func id(0x%x)\n", md_id+1, id);
 		return E_PARAM;
 	}
-	
+
 	if(info_ptr->func == NULL) {
 		info_ptr->id = id;
 		info_ptr->func = func;
@@ -1152,7 +1152,7 @@ void exec_ccci_sys_call_back(int md_id, int cb_id, int data)
 	ccci_sys_cb_func_t func;
 	int	id;
 	ccci_sys_cb_func_info_t	*curr_table;
-	
+
 	if(md_id >= MAX_MD_NUM) {
 		printk("[ccci/ctl] (0)exec_sys_cb fail: invalid md id(%d) \n", md_id+1);
 		return;
@@ -1172,7 +1172,7 @@ void exec_ccci_sys_call_back(int md_id, int cb_id, int data)
 		printk("[ccci/ctl] (%d)exec_sys_cb fail: invalid func id(0x%x)\n",  md_id+1, cb_id);
 		return;
 	}
-	
+
 	func = curr_table[id].func;
 	if(func != NULL) {
 		func(md_id, data);
@@ -1193,8 +1193,8 @@ typedef struct ccci_pm_cb_item
 	void (*cb_func)(int);
 	int		md_id;
 }ccci_pm_cb_item_t;
-	
-	
+
+
 static ccci_pm_cb_item_t suspend_cb_table[MAX_MD_NUM][MAX_SLEEP_API];
 static ccci_pm_cb_item_t resume_cb_table[MAX_MD_NUM][MAX_SLEEP_API];
 
@@ -1204,7 +1204,7 @@ void register_suspend_notify(int md_id, unsigned int id, void (*func)(int))
 	if((id >= MAX_SLEEP_API) || (func == NULL) || (md_id >= MAX_MD_NUM)) {
 		printk("[ccci/ctl] (0)invalid suspend parameter(md:%d, cmd:%d)!\n", md_id, id);
 	}
-	
+
 	if (suspend_cb_table[md_id][id].cb_func == NULL){
 		suspend_cb_table[md_id][id].cb_func = func;
 		suspend_cb_table[md_id][id].md_id = md_id;
@@ -1212,13 +1212,13 @@ void register_suspend_notify(int md_id, unsigned int id, void (*func)(int))
 }
 EXPORT_SYMBOL(register_suspend_notify);
 
-	
+
 void register_resume_notify(int md_id, unsigned int id, void (*func)(int))
 {
 	if((id >= MAX_SLEEP_API) || (func == NULL) || (md_id >= MAX_MD_NUM)) {
 		printk("[ccci/ctl] (0)invalid resume parameter(md:%d, cmd:%d)!\n", md_id, id);
 	}
-	
+
 	if (resume_cb_table[md_id][id].cb_func == NULL){
 		resume_cb_table[md_id][id].cb_func = func;
 		resume_cb_table[md_id][id].md_id = md_id;
@@ -1229,7 +1229,7 @@ EXPORT_SYMBOL(register_resume_notify);
 
 static int ccci_helper_probe(struct platform_device *dev)
 {
-	
+
 	//printk( "\nccci_helper_probe\n" );
 	return 0;
 }
@@ -1261,7 +1261,7 @@ static int ccci_helper_suspend(struct platform_device *dev, pm_message_t state)
 				func(md_id);
 		}
 	}
-	
+
 	return 0;
 }
 
@@ -1281,7 +1281,7 @@ static int ccci_helper_resume(struct platform_device *dev)
 				func(md_id);
 		}
 	}
-	
+
 	return 0;
 }
 
@@ -1404,7 +1404,7 @@ static int __init ccci_helper_init(void)
 		printk("[ccci/ctl] (0)ccci_helper_driver register fail(%d)\n", ret);
 		return ret;
 	}
-	
+
 	return 0;
 }
 
@@ -1516,12 +1516,12 @@ void ccci_md_mem_reserve(void)
 
 static int __init ccci_helper_init(void)
 {
-#ifndef CONFIG_MTK_TB_WIFI_3G_MODE_WIFI_ONLY	
+#ifndef CONFIG_MTK_TB_WIFI_3G_MODE_WIFI_ONLY
 
 	//internal_md_power_down();
 	/* start kthread to power down modem */
 	struct task_struct * md_power_kthread;
-	
+
 	md_power_kthread = kthread_run(internal_md_power_down, NULL, "md_power_off_kthread");
 	if (IS_ERR(md_power_kthread)) {
 		printk("[ccci/ctl] (0)create kthread for power off md fail, only direct call API\n");
@@ -1529,7 +1529,7 @@ static int __init ccci_helper_init(void)
 	} else {
 		printk("[ccci/ctl] (0)create kthread for power off md ok\n");
 	}
-	
+
 #endif
 	return 0;
 }

@@ -107,7 +107,7 @@ void update_ext_md_support(void)
         val = round_up(val, 0x200000);
         ext_md_size_list[MD_SYS5-MD_EXT1] = val;
     }
-  
+
 }
 
 /*API for kernal memory setting*/
@@ -125,7 +125,7 @@ void apply_pre_md_run_setting(void)
 	printk("[EEMCS/PLAT] Enable UART pin\n");
 	mt_set_gpio_mode(GPIO_UART_UTXD3_PIN, GPIO_UART_UTXD3_PIN_M_UTXD);
 	mt_set_gpio_mode(GPIO_UART_URXD3_PIN, GPIO_UART_URXD3_PIN_M_URXD);
-	#else 
+	#else
 	printk("[EEMCS/PLAT] Enable UART pin dummy\n");
 	#endif
 }
@@ -150,7 +150,7 @@ void apply_post_md_run_setting(void)
 	#else
 	printk("[EEMCS/PLAT] Disable UART pin dummy\n");
 	#endif
-	
+
 }
 EXPORT_SYMBOL(apply_post_md_run_setting);
 
@@ -211,14 +211,14 @@ int parse_eemcs_dfo_setting(void *dfo_data, int num)
 #endif
 
 
-void eemcs_memory_reserve(void){
+void __init eemcs_memory_reserve(void){
 	unsigned int	md5_en;
 
 	parse_eemcs_dfo_setting(NULL, 0);
-	
+
 	if( (ext_md_usage_case&MD5_EN)== MD5_EN) { //Only MD1 enabled
 		md5_en = 1;
-		ext_md_mem_addr[MD_SYS5-MD_EXT1] = 
+		ext_md_mem_addr[MD_SYS5-MD_EXT1] =
             (unsigned int)arm_memblock_steal(ext_md_size_list[MD_SYS5-MD_EXT1], SZ_32M);
 	} else { // No MD is enabled
 		md5_en = 0;
@@ -267,7 +267,7 @@ int parse_ext_meta_md_setting(unsigned char args[])
         	printk("[EEMCS/PLAT] META EXT MD type:%d\n", ext_md_support[active_index]);
       		break;
   	}
-	return 0;	
+	return 0;
 }
 
 void get_ext_md_post_fix(int md_id, char buf[], char buf_ex[])
@@ -292,12 +292,12 @@ void get_ext_md_post_fix(int md_id, char buf[], char buf_ex[])
 	  	case MD_SYS5:
 	  		feature_val = ext_md_support[MD_SYS5-MD_EXT1];
 	  		break;
-			
+
 	  	default:
 	  		printk("[EEMCS/PLAT] [Error]get_ext_md_post_fix: invalid md_id=%d\n", md_id);
 	  		break;
 	}
-	
+
 	switch(feature_val) {
 	  	case modem_2g:
 	  		snprintf(YYY, 16, "_2g_n");
@@ -370,13 +370,13 @@ unsigned int get_ext_modem_support(int md_id){
 	  	case MD_SYS5:
 	  		feature_val = ext_md_support[MD_SYS5-MD_EXT1];
 	  		break;
-			
+
 	  	default:
 	        printk("[EEMCS/PLAT] [Error]get_ext_modem_support: invalid md_id=%d\n", md_id);
 	  		break;
 	}
-    
-	return feature_val;   
+
+	return feature_val;
 }
 EXPORT_SYMBOL(get_ext_modem_support);
 
@@ -397,9 +397,9 @@ unsigned int set_ext_modem_support(int md_id, int md_type)
 	        printk("[EEMCS/PLAT] [Error]set_modem_support: invalid md_id=%d\n", md_id);
 	        return -1;
     }
-    
+
     return 0;
-    
+
 }
 EXPORT_SYMBOL(set_ext_modem_support);
 
@@ -411,19 +411,19 @@ void get_ap_platform_ver(char * ver)
 EXPORT_SYMBOL(get_ap_platform_ver);
 
 
-unsigned int get_ext_md_mem_start_addr(int md_id){  
+unsigned int get_ext_md_mem_start_addr(int md_id){
 	unsigned int	feature_val = 0;
 
 	switch(md_id) {
 	  	case MD_SYS5:
 	  		feature_val = ext_md_mem_addr[MD_SYS5-MD_EXT1];
 	  		break;
-			
+
 	  	default:
 	  		printk("[EEMCS/PLAT] [Error]get_ext_md_mem_start_addr: invalid md_id=%d\n", md_id);
 	  		break;
 	}
-    
+
 	return feature_val;
 }
 EXPORT_SYMBOL(get_ext_md_mem_start_addr);
@@ -435,14 +435,14 @@ unsigned int get_ext_md_mem_size(int md_id){
 	  	case MD_SYS5:
 	  		feature_val = ext_md_size_list[MD_SYS5-MD_EXT1];
 	  		break;
-			
+
 	  	default:
 	  		printk("[EEMCS/PLAT] [Error]get_ext_md_mem_size: invalid md_id=%d\n", md_id);
 	  		break;
 	}
-    
+
 	return feature_val;
-    
+
 }
 EXPORT_SYMBOL(get_ext_md_mem_size);
 
@@ -455,7 +455,7 @@ int eemcs_get_bat_info(unsigned int para)
 	val = (int)BAT_Get_Battery_Voltage(0);
 	printk("[EEMCS/PLAT] get_bat_info : %d \n", val);
 	return val;
-	
+
 #else
 	return -1;
 #endif
@@ -464,13 +464,13 @@ int eemcs_get_bat_info(unsigned int para)
 EXPORT_SYMBOL(eemcs_get_bat_info);
 
 
-#if defined (FEATURE_LOW_BATTERY)	
+#if defined (FEATURE_LOW_BATTERY)
 void eemcs_low_battery_cb(unsigned int level)
 {
 	int md_id;
 	int ret;
 	unsigned int reserve = 0xFFFFFFFF;
-	
+
 	/*
 	 * byte3 byte2 byte1 byte0
 	 *  0     4G    3G    2G
@@ -480,7 +480,7 @@ void eemcs_low_battery_cb(unsigned int level)
 	} else if(level == LOW_BATTERY_LEVEL_1 || level == LOW_BATTERY_LEVEL_2) {
 		reserve = (1<<6);// 64
 	}
-	
+
 	if(reserve!=0xFFFFFFFF) {
 		for(md_id = MD_EXT1; md_id < (MD_EXT1+MAX_EXT_MD_NUM); md_id++) {
 			ret = eemcs_notify_md_by_sys_msg(md_id, EXT_MD_LOW_BATTERY_LEVEL, reserve);
@@ -526,12 +526,12 @@ int clear_md_region_protection(int md_id)
 			rom_mem_mpu_id = 1; //0;
 			rw_mem_mpu_id = 2;  //1;
 			break;
-			
+
 		default:
 			printk("[EEMCS/PLAT] [Error]clear_md_region_protection: invalid md_id=%d\n", md_id+1);
 			return -1;
 	}
-	
+
 	printk("[EEMCS/PLAT] Clear MPU protect MD%d ROM region<%d>\n", md_id+1, rom_mem_mpu_id);
 	emi_mpu_set_region_protection(0,	  				/*START_ADDR*/
 								  0,      				/*END_ADDR*/
@@ -543,7 +543,7 @@ int clear_md_region_protection(int md_id)
 								  0,       				/*END_ADDR*/
 								  rw_mem_mpu_id,        /*region*/
 								  SET_ACCESS_PERMISSON(NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION));
-	
+
 	return 0;
 }
 EXPORT_SYMBOL(clear_md_region_protection);
@@ -557,7 +557,7 @@ int eemcs_register_sys_msg_notify_func(int md_id, int (*func)(int, unsigned int,
 {
 	int ret = 0;
 	int ex_md_id = md_id - MD_EXT1;
-	
+
 	if( ex_md_id >= MAX_EXT_MD_NUM ) {
 		printk("[EEMCS/PLAT] [Error]register_sys_msg_notify_func: invalid md id(%d)\n", md_id+1);
 		return E_PARAM;
@@ -579,7 +579,7 @@ int eemcs_notify_md_by_sys_msg(int md_id, unsigned int msg, unsigned int data)
 	int (*func)(int, unsigned int, unsigned int);
 	int ret = 0;
 	int ext_md_id = md_id - MD_EXT1;
-	
+
 	if(ext_md_id >= MAX_EXT_MD_NUM) {
 		printk("[EEMCS/PLAT] [Error]notify_md_by_sys_msg: invalid md id(%d)\n", md_id+1);
 		return E_PARAM;
@@ -603,7 +603,7 @@ int eemcs_register_ccci_sys_call_back(int md_id, unsigned int id, eemcs_sys_cb_f
 	int ret = 0;
 	eemcs_sys_cb_func_info_t *info_ptr;
 	int ext_md_id = md_id - MD_EXT1;
-	
+
 	if( ext_md_id >= MAX_EXT_MD_NUM ) {
 		printk("[EEMCS/PLAT] [Error]register_sys_call_back: invalid md id(%d)\n", md_id+1);
 		return E_PARAM;
@@ -617,7 +617,7 @@ int eemcs_register_ccci_sys_call_back(int md_id, unsigned int id, eemcs_sys_cb_f
 		printk("[EEMCS/PLAT] [Error]register_sys_call_back: invalid func id(0x%x)\n", id);
 		return E_PARAM;
 	}
-	
+
 	if(info_ptr->func == NULL) {
 		info_ptr->id = id;
 		info_ptr->func = func;
@@ -636,7 +636,7 @@ void eemcs_exec_ccci_sys_call_back(int md_id, int cb_id, int data)
 	int	id;
 	eemcs_sys_cb_func_info_t	*curr_table;
 	int ext_md_id = md_id - MD_EXT1;
-	
+
 	if(ext_md_id >= MAX_EXT_MD_NUM) {
 		printk("[EEMCS/PLAT] [Error]exec_sys_cb: invalid md id(%d) \n", md_id+1);
 		return;
@@ -656,7 +656,7 @@ void eemcs_exec_ccci_sys_call_back(int md_id, int cb_id, int data)
 		printk("[EEMCS/PLAT] [Error]exec_sys_cb: invalid func id(0x%x)\n", cb_id);
 		return;
 	}
-	
+
 	func = curr_table[id].func;
 	if(func != NULL) {
 		func(md_id, data);
@@ -677,7 +677,7 @@ int eemcs_register_ccci_kern_func_by_md_id(int md_id, unsigned int id, eemcs_ker
 {
 	int ret = 0;
 	eemcs_kern_func_info *info_ptr;
-	
+
 	if((id >= MAX_KERN_API) || (func == NULL) || (md_id >= MAX_EXT_MD_NUM)) {
 		printk("[EEMCS/PLAT] [Error]register_kern_func: md_id:%d, func_id:%d!\n", md_id+1, id);
 		return E_PARAM;
@@ -707,17 +707,17 @@ int eemcs_exec_ccci_kern_func_by_md_id(int md_id, unsigned int id, char *buf, un
 {
 	eemcs_kern_cb_func_t func;
 	int ret = 0;
-	
+
 	if(md_id >= MAX_EXT_MD_NUM) {
 		printk("[EEMCS/PLAT] [Error]exec kern func: invalid md id(%d)\n", md_id+1);
 		return E_PARAM;
 	}
-	
+
 	if(id >= MAX_KERN_API) {
 		printk("[EEMCS/PLAT] [Error]exec kern func: invalid func id(%d)\n", id);
 		return E_PARAM;
 	}
-	
+
 	func = eemcs_func_table[md_id][id].func;
 	if(func != NULL) {
 		ret = func(md_id, buf, len);
@@ -750,8 +750,8 @@ typedef struct eemcs_pm_cb_item
 	void (*cb_func)(int);
 	int		md_id;
 }eemcs_pm_cb_item_t;
-	
-	
+
+
 static eemcs_pm_cb_item_t eemcs_suspend_cb_table[MAX_EXT_MD_NUM][MAX_SLEEP_API];
 static eemcs_pm_cb_item_t eemcs_resume_cb_table[MAX_EXT_MD_NUM][MAX_SLEEP_API];
 
@@ -761,7 +761,7 @@ void eemcs_register_suspend_notify(int md_id, unsigned int id, void (*func)(int)
 	if ((id >= MAX_SLEEP_API) || (func == NULL) || (md_id >= MAX_EXT_MD_NUM)) {
 		printk("[EEMCS/PLAT] [Error]register_suspend_notify: invalid para(md:%d, cmd:%d)\n", md_id, id);
 	}
-	
+
 	if (eemcs_suspend_cb_table[md_id][id].cb_func == NULL){
 		eemcs_suspend_cb_table[md_id][id].cb_func = func;
 		eemcs_suspend_cb_table[md_id][id].md_id = md_id;
@@ -769,13 +769,13 @@ void eemcs_register_suspend_notify(int md_id, unsigned int id, void (*func)(int)
 }
 EXPORT_SYMBOL(eemcs_register_suspend_notify);
 
-	
+
 void eemcs_register_resume_notify(int md_id, unsigned int id, void (*func)(int))
 {
 	if ((id >= MAX_SLEEP_API) || (func == NULL) || (md_id >= MAX_EXT_MD_NUM)) {
 		printk("[EEMCS/PLAT] [Error]register_resume_notify: invalid para(md:%d, cmd:%d)\n", md_id, id);
 	}
-	
+
 	if (eemcs_resume_cb_table[md_id][id].cb_func == NULL){
 		eemcs_resume_cb_table[md_id][id].cb_func = func;
 		eemcs_resume_cb_table[md_id][id].md_id = md_id;
@@ -786,7 +786,7 @@ EXPORT_SYMBOL(eemcs_register_resume_notify);
 #ifdef __EEMCS_DRV_EN__
 static int eemcs_helper_probe(struct platform_device *dev)
 {
-	
+
 	//printk( "\neemcs_helper_probe\n" );
 	return 0;
 }
@@ -818,7 +818,7 @@ static int eemcs_helper_suspend(struct platform_device *dev, pm_message_t state)
 				func(md_id);
 		}
 	}
-	
+
 	return 0;
 }
 
@@ -838,7 +838,7 @@ static int eemcs_helper_resume(struct platform_device *dev)
 				func(md_id);
 		}
 	}
-	
+
 	return 0;
 }
 
@@ -886,7 +886,7 @@ int eemcs_helper_pm_restore_noirq(struct device *device)
     printk("[EEMCS] IPO-H resetore ++\n");
     eemcs_set_reload_image(1);
     printk("[EEMCS] IPO-H resetore --\n");
-    
+
     return 0;
 
 }
@@ -961,8 +961,8 @@ static int __init eemcs_helper_init(void)
 		printk("[EEMCS/PLAT] [Error]eemcs_helper_driver register fail: %d\n", ret);
 		return ret;
 	}
-	
-	#if defined (FEATURE_LOW_BATTERY)	
+
+	#if defined (FEATURE_LOW_BATTERY)
 	register_low_battery_notify(&eemcs_low_battery_cb, LOW_BATTERY_PRIO_MD5);
 	#endif
 
