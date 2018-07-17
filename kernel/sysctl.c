@@ -1090,7 +1090,7 @@ static struct ctl_table kern_table[] = {
 		.proc_handler	= proc_dointvec,
 	},
 #endif
-#if defined(CONFIG_ARM) || defined(CONFIG_ARM64)
+#ifdef CONFIG_ARM
 	{
 		.procname	= "boot_reason",
 		.data		= &boot_reason,
